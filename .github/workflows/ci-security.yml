@@ -253,9 +253,8 @@ jobs:
           path: |
             junit.xml
             htmlcov/
+          if-no-files-found: ignore
         continue-on-error: true
-        # Ne pas échouer si les fichiers n'existent pas
-        if-no-files-found: ignore
 
   # ===== JOB 6 : QUALITY GATE =====
   quality-gate:
