@@ -35,7 +35,7 @@ jobs:
       # GitGuardian - Scan avancé des secrets (optionnel si API key configurée)
       - name: GitGuardian Secret Scan
         run: |
-          pip install gitguardian
+          pip install ggshield
           ggshield secret scan repo --json --exit-code FAIL . 2>&1 || true
         continue-on-error: true
         env:
@@ -134,8 +134,8 @@ jobs:
       - name: Safety Dependency Check
         run: |
           pip install safety
-          safety check --json > safety-report.json || true
-          safety check
+          safety scan --json --output safety-report.json || true
+          safety scan
         continue-on-error: true
 
       - name: Upload Safety Report
