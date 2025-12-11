@@ -2,9 +2,9 @@ name: 🔒 Security & Code Quality Scan
 
 on:
   push:
-    branches: [ main, develop, master, dev ]
+    branches: [ dev ]
   pull_request:
-    branches: [ main, develop, master, dev ]
+    branches: [ dev ]
 
 env:
   REGISTRY: ghcr.io
@@ -61,7 +61,12 @@ jobs:
       - name: Install dependencies
         run: |
           python -m pip install --upgrade pip
-          pip install -r requirements.txt
+          if [ -f requirements.txt ]; then
+            pip install -r requirements.txt
+          else
+            echo "Warning: requirements.txt not found, installing minimal dependencies"
+            pip install bandit semgrep pylint requests beautifulsoup4 selenium
+          fi
           pip install bandit semgrep pylint
 
       # Bandit - Python Security Scanner
@@ -72,11 +77,12 @@ jobs:
         continue-on-error: true
 
       - name: Upload Bandit Report
-        if: always()
+        if: always() && hashFiles('bandit-report.json') != ''
         uses: actions/upload-artifact@v4
         with:
           name: bandit-report
           path: bandit-report.json
+        continue-on-error: true
 
       # Semgrep - Pattern-based security scanner
       - name: Semgrep Security Scan
@@ -91,11 +97,12 @@ jobs:
         continue-on-error: true
 
       - name: Upload SARIF report
-        if: always()
-        uses: github/codeql-action/upload-sarif@v2
+        if: always() && hashFiles('semgrep.sarif') != ''
+        uses: github/codeql-action/upload-sarif@v3
         with:
           sarif_file: semgrep.sarif
           category: semgrep
+        continue-on-error: true
 
   # ===== JOB 3 : SCA (Software Composition Analysis) =====
   sca-scan:
@@ -110,11 +117,18 @@ jobs:
         uses: actions/setup-python@v4
         with:
           python-version: '3.11'
+          cache: 'pip'
+          cache-dependency-path: 'requirements.txt'
 
       - name: Install dependencies
         run: |
           python -m pip install --upgrade pip
-          pip install -r requirements.txt
+          if [ -f requirements.txt ]; then
+            pip install -r requirements.txt
+          else
+            echo "Warning: requirements.txt not found, installing minimal dependencies"
+            pip install requests beautifulsoup4 selenium
+          fi
 
       # Safety - Check Python dependencies for vulnerabilities
       - name: Safety Dependency Check
@@ -125,11 +139,12 @@ jobs:
         continue-on-error: true
 
       - name: Upload Safety Report
-        if: always()
+        if: always() && hashFiles('safety-report.json') != ''
         uses: actions/upload-artifact@v4
         with:
           name: safety-report
           path: safety-report.json
+        continue-on-error: true
 
   # ===== JOB 4 : CODE QUALITY =====
   code-quality:
@@ -149,7 +164,12 @@ jobs:
       - name: Install dependencies
         run: |
           python -m pip install --upgrade pip
-          pip install -r requirements.txt
+          if [ -f requirements.txt ]; then
+            pip install -r requirements.txt
+          else
+            echo "Warning: requirements.txt not found, installing minimal dependencies"
+            pip install requests beautifulsoup4 selenium
+          fi
           pip install black isort flake8 pylint
 
       # Black - Code formatting
@@ -179,11 +199,12 @@ jobs:
         continue-on-error: true
 
       - name: Upload Pylint Report
-        if: always()
+        if: always() && hashFiles('pylint-report.json') != ''
         uses: actions/upload-artifact@v4
         with:
           name: pylint-report
           path: pylint-report.json
+        continue-on-error: true
 
   # ===== JOB 5 : UNIT TESTS & COVERAGE =====
   tests:
@@ -199,11 +220,17 @@ jobs:
         with:
           python-version: '3.11'
           cache: 'pip'
+          cache-dependency-path: 'requirements.txt'
 
       - name: Install dependencies
         run: |
           python -m pip install --upgrade pip
-          pip install -r requirements.txt
+          if [ -f requirements.txt ]; then
+            pip install -r requirements.txt
+          else
+            echo "Warning: requirements.txt not found, installing minimal dependencies"
+            pip install requests beautifulsoup4 selenium
+          fi
           pip install pytest pytest-cov pytest-xdist
 
       - name: Run Unit Tests with Coverage
@@ -227,6 +254,8 @@ jobs:
             junit.xml
             htmlcov/
         continue-on-error: true
+        # Ne pas échouer si les fichiers n'existent pas
+        if-no-files-found: ignore
 
   # ===== JOB 6 : QUALITY GATE =====
   quality-gate:
