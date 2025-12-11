@@ -1,0 +1,90 @@
+# Python
+__pycache__/
+*.py[cod]
+*$py.class
+*.so
+.Python
+build/
+develop-eggs/
+dist/
+downloads/
+eggs/
+.eggs/
+lib/
+lib64/
+parts/
+sdist/
+var/
+wheels/
+*.egg-info/
+.installed.cfg
+*.egg
+
+# Virtual Environment
+venv/
+ENV/
+env/
+.venv
+
+# IDE
+.vscode/
+.idea/
+*.swp
+*.swo
+*~
+.DS_Store
+
+# Environment variables
+.env
+.env.local
+.env.*.local
+
+# Logs
+*.log
+logs/
+data/logs/
+
+# Data files
+data/downloads/
+data/translations/
+data/versions.json
+data/keys/
+
+# Test coverage
+htmlcov/
+.coverage
+.coverage.*
+coverage.xml
+*.cover
+.hypothesis/
+.pytest_cache/
+
+# Security reports
+bandit-report.json
+safety-report.json
+pylint-report.json
+security-report.html
+security-report.json
+.secrets.baseline
+
+# CI/CD artifacts
+reports/
+junit.xml
+semgrep.sarif
+trivy-results.sarif
+scout-results.sarif
+
+# Pre-commit
+.pre-commit-config.yaml.bak
+
+# OS
+Thumbs.db
+.DS_Store
+
+# Project specific
+Historique/
+downloads/
+*.pdf
+*.xlsx
+*.docx
+
